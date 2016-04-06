@@ -1,9 +1,7 @@
 package com.home.groupsms;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,9 +39,12 @@ public class TabFragmentContacts extends Fragment {
                         viewHolder = (ContactsAdapter.ViewHolder) textView.getTag();
                         Contact c = viewHolder.contact;
                         if (!MainActivity.HashtableSelectedContacts.containsKey(c.phone1)) {
+                            Toast.makeText(getActivity().getApplicationContext(), "添加成功 " + c.title, Toast.LENGTH_SHORT).show();
                             Contact contact = new Contact(c.id, c.title, c.phone1, c.phone1Type);
                             MainActivity.HashtableSelectedContacts.put(c.phone1, contact);
                             //MainActivity.SelectedContactsAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(getActivity().getApplicationContext(), c.title+"已添加" , Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
