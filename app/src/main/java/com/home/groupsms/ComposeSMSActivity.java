@@ -1,16 +1,11 @@
 package com.home.groupsms;
 
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -27,8 +22,10 @@ import java.util.Enumeration;
  */
 public class ComposeSMSActivity extends AppCompatActivity {
 
+    int screenOnTime=0;
     private Toolbar mToolbar;
     private Menu mMenu;
+    long clockTime;
 
     private void setupToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -55,6 +52,9 @@ public class ComposeSMSActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.edit);
         //editText.setEnabled(false);
         message = editText.getText().toString();
+        if (message.length() == 0 || message == null) {
+            message="我刚刚玩手机了";
+        }
         //mMenu.getItem(0).setVisible(false);
 
         dbManager = new DBManager(this, true);
@@ -78,10 +78,38 @@ public class ComposeSMSActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_compose_sms);
 
         setupToolbar();
+        SharedPreferences preferences=getSharedPreferences("clock",0);
+        clockTime=preferences.getLong("clocktime",0);
+        Toast.makeText(getApplicationContext(),clockTime+"",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(),System.currentTimeMillis()+"",Toast.LENGTH_SHORT).show();
+        System.out.println(clockTime);
+        System.out.println(System.currentTimeMillis());
+        ScreenListener screenListener=new ScreenListener(getApplicationContext());
+        screenListener.begin(new ScreenListener.ScreenStateListener() {
+            @Override
+            public void onScreenOn() {
+                screenOnTime+=1;
+                System.out.println(screenOnTime);
+                if (screenOnTime > 4 && System.currentTimeMillis()<clockTime) {
+                    saveSMS();
+                } else if(System.currentTimeMillis()>clockTime){
+                    Toast.makeText(getApplicationContext(),"dangerous "+ screenOnTime,Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onScreenOff() {
+
+            }
+
+            @Override
+            public void onUserPresent() {
+
+            }
+        });
     }
 
     @Override
